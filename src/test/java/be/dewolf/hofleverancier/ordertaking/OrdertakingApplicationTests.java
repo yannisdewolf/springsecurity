@@ -39,11 +39,19 @@ public class OrdertakingApplicationTests {
 	}
 
 	@Test
-	public void testGetUserOrdersWithAdminCredentials_failsWithUnauthorized() {
+	public void testGetUserOrdersWithAdminCredentials_failsWithForbidden() {
 		String url = "http://localhost:" + port + "/user/orders";
-		ResponseEntity<OrderList> exchange = testRestTemplate("admin", "adminpassword").exchange(url, HttpMethod.GET, null, OrderList.class);
+		ResponseEntity<OrderList> exchange = testRestTemplate("adminuser", "adminpassword").exchange(url, HttpMethod.GET, null, OrderList.class);
 		System.out.println(exchange);
-		Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange.getStatusCode());
+		Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
+	}
+
+	@Test
+	public void testGetAdminOrdersWithUserCredentials_failsWithForbidden() {
+		String url = "http://localhost:" + port + "/admin/orders";
+		ResponseEntity<OrderList> exchange = testRestTemplate("usertestconfig", "password").exchange(url, HttpMethod.GET, null, OrderList.class);
+		System.out.println(exchange);
+		Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
 	}
 
 	@Test
