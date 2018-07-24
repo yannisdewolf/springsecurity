@@ -13,7 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private DummyAuthenticationProvider dummyAuthenticationProvider;
+    private UserAuthenticationProvider dummyAuthenticationProvider;
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
@@ -23,17 +23,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             throws Exception {
 
         //werkt!!
-        //configureCustomAuthenticationProvider(auth);
+        configureCustomAuthenticationProviders(auth);
 
         //werkt!!
-        configureCustomUserDetailsService(auth);
+        //configureCustomUserDetailsService(auth);
 
         //werkt!!
         //configureInMemory(auth);
     }
 
-    private void configureCustomAuthenticationProvider(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(new DummyAuthenticationProvider());
+    private void configureCustomAuthenticationProviders(AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(new UserAuthenticationProvider())
+                .authenticationProvider(new AdminAuthenticationProvider());
     }
 
     private void configureCustomUserDetailsService(AuthenticationManagerBuilder auth) {

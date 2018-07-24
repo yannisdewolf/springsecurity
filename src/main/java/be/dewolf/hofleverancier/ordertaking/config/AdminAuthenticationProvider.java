@@ -5,12 +5,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
-@Component
-public class DummyAuthenticationProvider implements AuthenticationProvider {
+public class AdminAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
@@ -19,11 +17,12 @@ public class DummyAuthenticationProvider implements AuthenticationProvider {
 
         System.out.println("username: " + username);
 
-        String role = username.equals("usertestconfig") && password.equals("password") ? "ROLE_USER" :
-                username.equals("adminuser") && password.equals("adminpassword") ? "ROLE_ADMIN" :
-                        "";
+        if (username.equals("adminuser") && password.equals("adminpassword")) {
+            return new UsernamePasswordAuthenticationToken(username, password, Collections.singleton((GrantedAuthority) () -> "ROLE_ADMIN"));
+        }
 
-        return new UsernamePasswordAuthenticationToken(username, password, Collections.singleton((GrantedAuthority) () -> role));
+        return null;
+
     }
 
     @Override
