@@ -23,7 +23,7 @@ public class OrdertakingApplication {
 		SpringApplication.run(OrdertakingApplication.class, args);
 	}
 
-	@GetMapping("/orders")
+	@GetMapping("/user/orders")
 	public OrderList getOrders() {
 		Order order = new Order();
 		order.setOrderer("yannis");
@@ -31,6 +31,13 @@ public class OrdertakingApplication {
 		Order order2 = new Order();
 		order2.setOrderer("amke");
 		return new OrderList(Arrays.asList(order, order2));
+	}
+
+	@GetMapping("/admin/orders")
+	public OrderList ordersForAdmin() {
+		Order order = new Order();
+		order.setOrderer("admin");
+		return new OrderList(Arrays.asList(order));
 	}
 
 	@Bean
