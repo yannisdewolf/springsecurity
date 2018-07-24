@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -30,9 +31,13 @@ public class OrdertakingApplicationTests {
 	@Test
 	public void testGetOrders() {
 		String url = "http://localhost:" + port + "/orders";
-		ResponseEntity<OrderList> exchange = restTemplate.exchange(url, HttpMethod.GET, null, OrderList.class);
+		ResponseEntity<OrderList> exchange = testRestTemplate().exchange(url, HttpMethod.GET, null, OrderList.class);
 		System.out.println(exchange);
 		Assert.assertEquals(2, exchange.getBody().getOrders().size());
+	}
+
+	public TestRestTemplate testRestTemplate() {
+		return new TestRestTemplate("usertestconfig", "password");
 	}
 
 }
