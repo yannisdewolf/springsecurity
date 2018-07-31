@@ -19,6 +19,8 @@ import org.springframework.web.client.RestTemplate;
 @ActiveProfiles("integrationtest")
 public class OrdertakingApplicationTests {
 
+	public static final String API_USER_ORDERS = "/api/user/orders";
+	public static final String API_ADMIN_ORDERS = "/api/admin/orders";
 	@Value("${local.server.port}")
 	protected int port;
 
@@ -31,7 +33,7 @@ public class OrdertakingApplicationTests {
 
 	@Test
 	public void testGetUserOrdersWithUserCredentials_succeeds() {
-		String url = "http://localhost:" + port + "/user/orders";
+		String url = "http://localhost:" + port + API_USER_ORDERS;
 		ResponseEntity<OrderList> exchange = testRestTemplate("usertestconfig", "password").exchange(url, HttpMethod.GET, null, OrderList.class);
 		System.out.println(exchange);
 		Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
@@ -40,7 +42,7 @@ public class OrdertakingApplicationTests {
 
 	@Test
 	public void testGetUserOrdersWithAdminCredentials_failsWithForbidden() {
-		String url = "http://localhost:" + port + "/user/orders";
+		String url = "http://localhost:" + port + API_USER_ORDERS;
 		ResponseEntity<OrderList> exchange = testRestTemplate("adminuser", "adminpassword").exchange(url, HttpMethod.GET, null, OrderList.class);
 		System.out.println(exchange);
 		Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
@@ -48,7 +50,7 @@ public class OrdertakingApplicationTests {
 
 	@Test
 	public void testGetAdminOrdersWithUserCredentials_failsWithForbidden() {
-		String url = "http://localhost:" + port + "/admin/orders";
+		String url = "http://localhost:" + port + API_ADMIN_ORDERS;
 		ResponseEntity<OrderList> exchange = testRestTemplate("usertestconfig", "password").exchange(url, HttpMethod.GET, null, OrderList.class);
 		System.out.println(exchange);
 		Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
@@ -56,7 +58,7 @@ public class OrdertakingApplicationTests {
 
 	@Test
 	public void testGetUserOrdersWithoutCredentials_failsWithUnauthorized() {
-		String url = "http://localhost:" + port + "/user/orders";
+		String url = "http://localhost:" + port + API_USER_ORDERS;
 		ResponseEntity<Object> exchange = testRestTemplate(null, null).exchange(url, HttpMethod.GET, null, Object.class);
 		System.out.println(exchange);
 		Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange.getStatusCode());
@@ -64,7 +66,7 @@ public class OrdertakingApplicationTests {
 
 	@Test
 	public void testGetAdminOrdersWithAdminCredentials_succeeds() {
-		String url = "http://localhost:" + port + "/admin/orders";
+		String url = "http://localhost:" + port + API_ADMIN_ORDERS;
 		ResponseEntity<OrderList> exchange = testRestTemplate("adminuser", "adminpassword").exchange(url, HttpMethod.GET, null, OrderList.class);
 		System.out.println(exchange);
 		Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
