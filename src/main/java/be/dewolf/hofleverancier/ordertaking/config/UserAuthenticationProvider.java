@@ -20,8 +20,10 @@ public class UserAuthenticationProvider implements AuthenticationProvider {
         System.out.println("username: " + username);
 
         if (username.equals("usertestconfig") && password.equals("password")) {
+            System.out.println("user is logged in!");
             return new UsernamePasswordAuthenticationToken(username, password, Collections.singleton((GrantedAuthority) () -> "ROLE_USER"));
         }
+        System.out.println("user is NOT logged in!");
 
         return null;
     }

@@ -1,5 +1,6 @@
 package be.dewolf.hofleverancier.ordertaking;
 
+import be.dewolf.hofleverancier.ordertaking.controller.OrderList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +22,8 @@ public class OrdertakingApplicationTests {
 
 	public static final String API_USER_ORDERS = "/api/user/orders";
 	public static final String API_ADMIN_ORDERS = "/api/admin/orders";
+	public static final String USERNAME_1 = "amke";
+	public static final String USERNAME_2 = "yannis";
 	@Value("${local.server.port}")
 	protected int port;
 
@@ -34,7 +37,7 @@ public class OrdertakingApplicationTests {
 	@Test
 	public void testGetUserOrdersWithUserCredentials_succeeds() {
 		String url = "http://localhost:" + port + API_USER_ORDERS;
-		ResponseEntity<OrderList> exchange = testRestTemplate("usertestconfig", "password").exchange(url, HttpMethod.GET, null, OrderList.class);
+		ResponseEntity<OrderList> exchange = testRestTemplate(USERNAME_1, "password").exchange(url, HttpMethod.GET, null, OrderList.class);
 		System.out.println(exchange);
 		Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 		Assert.assertEquals(2, exchange.getBody().getOrders().size());
@@ -51,7 +54,7 @@ public class OrdertakingApplicationTests {
 	@Test
 	public void testGetAdminOrdersWithUserCredentials_failsWithForbidden() {
 		String url = "http://localhost:" + port + API_ADMIN_ORDERS;
-		ResponseEntity<OrderList> exchange = testRestTemplate("usertestconfig", "password").exchange(url, HttpMethod.GET, null, OrderList.class);
+		ResponseEntity<OrderList> exchange = testRestTemplate(USERNAME_1, "password").exchange(url, HttpMethod.GET, null, OrderList.class);
 		System.out.println(exchange);
 		Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
 	}
@@ -59,9 +62,54 @@ public class OrdertakingApplicationTests {
 	@Test
 	public void testGetUserOrdersWithoutCredentials_failsWithUnauthorized() {
 		String url = "http://localhost:" + port + API_USER_ORDERS;
-		ResponseEntity<Object> exchange = testRestTemplate(null, null).exchange(url, HttpMethod.GET, null, Object.class);
+		ResponseEntity<String> exchange = testRestTemplate(null, null).exchange(url, HttpMethod.GET, null, String.class);
 		System.out.println(exchange);
 		Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange.getStatusCode());
+	}
+
+	@Test
+	public void basicInfoWithoutLogin_succeeds() {
+		String url = "http://localhost:" + port + "/basicinfo";
+		ResponseEntity<String> exchange = testRestTemplate(null, null).exchange(url, HttpMethod.GET, null, String.class);
+		System.out.println(exchange);
+		Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+	}
+
+	@Test
+	public void basicInfoUserLogin_succeeds() {
+		String url = "http://localhost:" + port + "/basicinfo";
+		ResponseEntity<String> exchange = testRestTemplate(USERNAME_1, "password").exchange(url, HttpMethod.GET, null, String.class);
+		System.out.println(exchange);
+		Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+	}
+
+	@Test
+	public void basicInfoAdminLogin_succeeds() {
+		String url = "http://localhost:" + port + "/basicinfo";
+		ResponseEntity<String> exchange = testRestTemplate("adminuser", "adminpassword").exchange(url, HttpMethod.GET, null, String.class);
+		System.out.println(exchange);
+		Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+	}
+
+	@Test
+	public void publicDisclaimerWithoutLogin_succeeds() {
+		String url = "http://localhost:" + port + "/publicdisclaimer";
+		ResponseEntity<String> exchange = testRestTemplate(null, null).exchange(url, HttpMethod.GET, null, String.class);
+		System.out.println(exchange);
+		Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+	}
+
+	@Test
+	public void getUserOrdersGetsOnlyOrdersForLoggedInUser() {
+		testForUser(USERNAME_1);
+		testForUser(USERNAME_2);
+	}
+
+	private void testForUser(String username1) {
+		String url = "http://localhost:" + port + API_USER_ORDERS;
+		ResponseEntity<OrderList> exchange = testRestTemplate(username1, "password").exchange(url, HttpMethod.GET, null, OrderList.class);
+		Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+		exchange.getBody().getOrders().stream().allMatch(o -> o.getOrderer().equals(username1));
 	}
 
 	@Test
@@ -70,7 +118,7 @@ public class OrdertakingApplicationTests {
 		ResponseEntity<OrderList> exchange = testRestTemplate("adminuser", "adminpassword").exchange(url, HttpMethod.GET, null, OrderList.class);
 		System.out.println(exchange);
 		Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-		Assert.assertEquals(1, exchange.getBody().getOrders().size());
+		Assert.assertEquals(4, exchange.getBody().getOrders().size());
 	}
 
 	public TestRestTemplate testRestTemplate(String username, String password) {

@@ -18,9 +18,11 @@ public class AdminAuthenticationProvider implements AuthenticationProvider {
         System.out.println("username: " + username);
 
         if (username.equals("adminuser") && password.equals("adminpassword")) {
+            System.out.println("adminuser is logged in!");
             return new UsernamePasswordAuthenticationToken(username, password, Collections.singleton((GrantedAuthority) () -> "ROLE_ADMIN"));
         }
 
+        System.out.println("adminuser is NOT logged in!");
         return null;
 
     }

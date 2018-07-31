@@ -4,12 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(
+        prePostEnabled = true,
+        securedEnabled = true,
+        jsr250Enabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -23,13 +28,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             throws Exception {
 
         //werkt!!
-        configureCustomAuthenticationProviders(auth);
+        //configureCustomAuthenticationProviders(auth);
 
         //werkt!!
         //configureCustomUserDetailsService(auth);
 
         //werkt!!
-        //configureInMemory(auth);
+        configureInMemory(auth);
     }
 
     private void configureCustomAuthenticationProviders(AuthenticationManagerBuilder auth) {
@@ -46,7 +51,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private void configureInMemory(AuthenticationManagerBuilder auth) throws Exception {
         auth
                 .inMemoryAuthentication()
-                    .withUser("usertestconfig")
+                    .withUser("yannis")
+                    .password("{noop}password")
+                    .roles("USER")
+                .and()
+                    .withUser("amke")
                     .password("{noop}password")
                     .roles("USER")
                 .and()
@@ -58,11 +67,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                //.antMatcher("/api/**")
                 .authorizeRequests()
-                .antMatchers("/api/admin/**").hasRole("ADMIN")
-                .antMatchers("/api/user/**").hasRole("USER")
-                .anyRequest()
-                .authenticated()
+                .antMatchers("/basicinfo").permitAll()
+                .antMatchers("/publicdisclaimer").permitAll()
+                .anyRequest().authenticated()
+                //.antMatchers("/api/admin/**").hasRole("ADMIN")
+                //.antMatchers("/api/user/**").hasRole("USER")
                 .and().httpBasic();
     }
 }
