@@ -121,6 +121,22 @@ public class OrdertakingApplicationTests {
 		Assert.assertEquals(4, exchange.getBody().getOrders().size());
 	}
 
+	@Test
+	public void wrongUsernameReturns401() {
+		String url = "http://localhost:" + port + API_ADMIN_ORDERS;
+		ResponseEntity<OrderList> exchange = testRestTemplate("adminuser_not_existing", "adminpassword").exchange(url, HttpMethod.GET, null, OrderList.class);
+		System.out.println(exchange);
+		Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange.getStatusCode());
+	}
+
+	@Test
+	public void wrongPasswordReeturns401() {
+		String url = "http://localhost:" + port + API_ADMIN_ORDERS;
+		ResponseEntity<OrderList> exchange = testRestTemplate("adminuser", "adminpassword_wrong").exchange(url, HttpMethod.GET, null, OrderList.class);
+		System.out.println(exchange);
+		Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange.getStatusCode());
+	}
+
 	public TestRestTemplate testRestTemplate(String username, String password) {
 		return new TestRestTemplate(username, password);
 	}
