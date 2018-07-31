@@ -1,5 +1,8 @@
 package be.dewolf.hofleverancier.ordertaking.controller;
 
+import be.dewolf.hofleverancier.ordertaking.integration.Order;
+import be.dewolf.hofleverancier.ordertaking.integration.OrderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,16 +12,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 public class OrderController {
 
+
+    @Autowired
+    private OrderRepository orderRepository;
+
     @GetMapping("/api/user/orders")
     @Secured("ROLE_USER")
     public OrderList ordersForUser(Authentication authentication) {
-        System.out.println("Authentication: " + authentication);
-        List<OrderDTO> userOrders = getUserOrders(authentication.getName());
-        return new OrderList(userOrders);
+        List<Order> byOrderer = orderRepository.findByOrderer(authentication.getName());
+        List<OrderDTO> collect = byOrderer.stream().map(this::toDTO).collect(Collectors.toList());
+
+        return new OrderList(collect);
+    }
+
+    private OrderDTO toDTO(Order order) {
+        return new OrderDTO(order.getOrderer(), order.getId());
     }
 
     private List<OrderDTO> getUserOrders(String username) {

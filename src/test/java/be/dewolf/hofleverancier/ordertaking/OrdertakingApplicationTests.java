@@ -1,5 +1,6 @@
 package be.dewolf.hofleverancier.ordertaking;
 
+import be.dewolf.hofleverancier.ordertaking.controller.OrderDTO;
 import be.dewolf.hofleverancier.ordertaking.controller.OrderList;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = OrdertakingApplication.class)
@@ -40,7 +43,7 @@ public class OrdertakingApplicationTests {
 		ResponseEntity<OrderList> exchange = testRestTemplate(USERNAME_1, "password").exchange(url, HttpMethod.GET, null, OrderList.class);
 		System.out.println(exchange);
 		Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-		Assert.assertEquals(2, exchange.getBody().getOrders().size());
+		Assert.assertEquals(3, exchange.getBody().getOrders().size());
 	}
 
 	@Test
@@ -101,15 +104,18 @@ public class OrdertakingApplicationTests {
 
 	@Test
 	public void getUserOrdersGetsOnlyOrdersForLoggedInUser() {
-		testForUser(USERNAME_1);
-		testForUser(USERNAME_2);
+		testForUser(USERNAME_1, 3);
+		testForUser(USERNAME_2, 2);
 	}
 
-	private void testForUser(String username1) {
+	private void testForUser(String username1, int expectedOrdersFoundFromDummyData) {
 		String url = "http://localhost:" + port + API_USER_ORDERS;
 		ResponseEntity<OrderList> exchange = testRestTemplate(username1, "password").exchange(url, HttpMethod.GET, null, OrderList.class);
 		Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-		exchange.getBody().getOrders().stream().allMatch(o -> o.getOrderer().equals(username1));
+		List<OrderDTO> orders = exchange.getBody().getOrders();
+		Assert.assertTrue(orders.stream().allMatch(o -> o.getOrderer().equals(username1)));
+		Assert.assertEquals(expectedOrdersFoundFromDummyData, orders.size());
+
 	}
 
 	@Test

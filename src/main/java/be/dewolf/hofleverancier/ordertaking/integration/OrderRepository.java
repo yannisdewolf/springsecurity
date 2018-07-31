@@ -10,4 +10,6 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Override
     @Query("select o from Order o join fetch o.orderLines")
     List<Order> findAll();
+
+    List<Order> findByOrderer(String username);
 }

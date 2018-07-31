@@ -1,5 +1,6 @@
 package be.dewolf.hofleverancier.ordertaking;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -15,6 +16,8 @@ public class OrdertakingApplication {
     public static void main(String[] args) {
         SpringApplication.run(OrdertakingApplication.class, args);
     }
+
+
 
     @GetMapping("/basicinfo")
     public String basicInfo() {

@@ -2,6 +2,8 @@ package be.dewolf.hofleverancier.ordertaking.integration;
 
 
 
+import org.springframework.util.Assert;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -62,6 +64,7 @@ public class Order implements Serializable {
         orderLines = builder.orderLines;
         orderLines.forEach(ol -> ol.setOrder(this));
         id = builder.id;
+        this.orderer = builder.orderer;
     }
 
 
@@ -89,10 +92,17 @@ public class Order implements Serializable {
 
     public static final class Builder {
         private List<OrderLine> orderLines;
+        private String orderer;
         private String id;
 
         private Builder() {
             id = UUID.randomUUID().toString();
+            this.orderLines = new ArrayList<>();
+        }
+
+        public Builder withOrderer(String orderer) {
+            this.orderer = orderer;
+            return this;
         }
 
         public Builder withOrderLines(List<OrderLine> val) {
@@ -101,6 +111,7 @@ public class Order implements Serializable {
         }
 
         public Order build() {
+            Assert.notNull(orderer, "orderer is mandatory");
             return new Order(this);
         }
     }
